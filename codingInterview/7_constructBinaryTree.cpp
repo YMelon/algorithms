@@ -1,65 +1,63 @@
 
-#include "Utilities/BinaryTree.h"
 #include <cstdio>
+
+//二叉树节点定义
+struct BiTreeNode {
+    int val;
+    BiTreeNode* left;
+    BiTreeNode* right;
+};
 
 
 //核心逻辑函数声明
-BinaryTreeNode* ConstructCore(int* startPreorder, 
-	                      int* endPreorder, 
-			      int* startInorder, 
-			      int* endInorder);
+BiTreeNode* ConstructCore(int* startPre, int* endPre, int* startIn, int* endIn);
 
 //重建二叉树
-BinaryTreeNode* Construct(int* preorder, int* inorder, int length) {
+BiTreeNode* Construct(int* pre, int* in, int len) {
     //输入合法检测
-    if(preorder == NULL || inorder == NULL || length <= 0)
+    if(pre== NULL || in == NULL || len <= 0)
 	return NULL;
 
-    return ConstructCore(preorder, preorder + length - 1, inorder, inorder + length - 1);
+    return ConstructCore(pre, pre + len - 1, in, in + len - 1);
 
 }
 
-BinaryTreeNode* ConstructCore(int* startPreorder, 
-	                      int* endPreorder, 
-			      int* startInorder, 
-			      int* endInorder) {
+BiTreeNode* ConstructCore(int* startPre, int* endPre, int* startIn, int* endIn) {
     //前序遍历序列的第一个数字是根节点的值
-    int rootValue = startPreorder[0];
-    BinaryTreeNode* root = new BinaryTreeNode();
-    root -> m_nValue = rootValue;
-    root -> m_pLeft = root -> m_pRight = NULL;
+    int rootVal = startPre[0];
+    BiTreeNode* root = new BiTreeNode();
+    root -> val = rootVal;
+    root -> left = root -> right = NULL;
 
-    if(startPreorder == endPreorder) {
-	//只有一个节点
-	if(startInorder == endInorder && *startPreorder == *startInorder)
+    //二叉树只有一个节点
+    if(startPre == endPre) {
+	if(startIn == endIn && *startPre == *startIn)
 	    return root;
 	else {
-	    printf("Invalid input");
+	    printf("Invalid input: input sequence not match\n");
 	    return NULL;
 	}
     }
 
-    //在中序遍历序列中找到根节点的值
-    int* rootInorder = startInorder;
-    while(rootInorder < endInorder && *rootInorder != rootValue)
-	rootInorder ++;
+    //在中序遍历序列中找到根节点
+    int* rootIn = startIn;
+    while(rootIn < endIn && *rootIn != rootVal)
+	rootIn ++;
     //错误处理
-    if(rootInorder == endInorder && *rootInorder != rootValue) {
-	printf("Invalid input\n");
+    if(rootIn == endIn && *rootIn != rootVal) {
+	printf("Invalid input: input sequence not match\n");
 	return NULL;
     }
 
-    int leftLength = rootInorder - startInorder;
-    int* leftPreorderEnd = startPreorder + leftLength;
-    if(leftLength > 0) {
-	//构建左子树
-	root -> m_pLeft = ConstructCore(startPreorder + 1, leftPreorderEnd, 
-		                        startInorder, rootInorder);
+    int leftLen = rootIn - startIn;
+    int* leftPreEnd = startPre + leftLen;
+    //构建左子树
+    if(leftLen > 0) {
+	root -> left = ConstructCore(startPre + 1, leftPreEnd, startIn, rootIn - 1);
     }
-    //构建右子树
-    if(leftLength < endPreorder - startPreorder) {
-	root -> m_pRight = ConstructCore(leftPreorderEnd + 1, endPreorder, 
-		                         rootInorder + 1, endInorder);
+    //构建右子树 若左子树序列小于二叉树序列说明有右子树
+    if(leftLen < endPre - startPre) {
+	root -> right = ConstructCore(leftPreEnd + 1, endPre, rootIn + 1, endIn);
     }
 
     return root;
@@ -190,7 +188,6 @@ void Test6()
     Test("Test6", nullptr, nullptr, 0);
 }
 
-// ÊäÈëµÄÁ½¸öÐòÁÐ²»Æ¥Åä
 void Test7()
 {
     const int length = 7;
